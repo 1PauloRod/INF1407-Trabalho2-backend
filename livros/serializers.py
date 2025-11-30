@@ -5,6 +5,20 @@ class LivroSerializer(serializers.ModelSerializer):
     class Meta:
         model = Livro
         fields = "__all__"
+
+
+class AlugarLivroSerializer(serializers.Serializer):
+    livro_id = serializers.IntegerField()
+
+class DevolverLivroSerializer(serializers.Serializer):
+    emprestimo_id = serializers.IntegerField()
+
+class LivroInputSerializer(serializers.Serializer):
+    titulo = serializers.CharField()
+    autor = serializers.CharField()
+    ano = serializers.IntegerField()
+    disponivel = serializers.BooleanField()
+
     
 
 class EmprestimoSerializer(serializers.ModelSerializer):

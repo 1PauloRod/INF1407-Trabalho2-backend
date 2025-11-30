@@ -7,6 +7,7 @@ from django.contrib.auth import get_user_model
 from .serializers import RegisterSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth.hashers import check_password
 
 User = get_user_model()
 
@@ -55,6 +56,9 @@ class LogoutView(APIView):
         return Response({"message": "Logout realizado com sucesso"})
     
 
+def is_bibliotecario(user):
+    return user.is_superuser
+
 class UserView(APIView):
     
     authentication_classes = [TokenAuthentication]
@@ -62,9 +66,42 @@ class UserView(APIView):
 
     def get(self, request):
         user = request.user
+        if is_bibliotecario(user):
+            return Response({
+                "id": user.id,
+                "name": user.first_name, 
+                "last_name": user.last_name,
+                "email": user.email,
+                "bibliotecario": True
+            })
+
         return Response({
-            "id": user.id,
-            "name": user.first_name, 
-            "last_name": user.last_name,
-            "email": user.email,
-        })
+                "id": user.id,
+                "name": user.first_name, 
+                "last_name": user.last_name,
+                "email": user.email,
+                "bibliotecario": False
+            })
+    
+
+class AlterarSenhaView(APIView):
+    permission_classes = [IsAuthenticated] 
+
+    def post(self, request):
+        
+        senha_atual = request.data.get("senha_atual")
+        nova_senha = request.data.get("nova_senha")
+
+        if not senha_atual or not nova_senha:
+            return Response({"erro": "Faltam dados"}, status=400)
+        
+        user = request.user
+
+        if not check_password(senha_atual, request.user.password):
+            return Response({"erro": "Senha atual incorreta"}, status=401)
+        
+        user.set_password(nova_senha) 
+        user.save()
+
+        return Response({"status": "Senha alterada com sucesso!"}, status=201)
+
