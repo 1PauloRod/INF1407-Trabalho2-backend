@@ -126,9 +126,9 @@ npx tsc
 
 ## Tecnologias Utilizadas
 
-Frontend: HTML5, CSS3, TypeScript, JavaScript.
-Backend: Django, Django REST Framework, Django Token Authentication.
-Banco de Dados: SQLite / PostgreSQL.
-Outras: LocalStorage para persistência de token, API REST para comunicação frontend-backend.
+- Frontend: HTML5, CSS3, TypeScript, JavaScript.
+- Backend: Django, Django REST Framework, Django Token Authentication.
+- Banco de Dados: SQLite.
+- Outras: LocalStorage para persistência de token, API REST para comunicação frontend-backend.
 
    
