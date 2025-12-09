@@ -87,6 +87,18 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5500",
 ]
 
+SWAGGER_SETTINGS = {
+    'USE_SESSION_AUTH': False,
+    'SECURITY_DEFINITIONS': {
+        'Token': {
+            'type': 'apiKey',
+            'name': 'Authorization',
+            'in': 'header'
+        }
+    }
+}
+
+
 # Permitir headers básicos
 CORS_ALLOW_HEADERS = [
     "accept",

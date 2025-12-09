@@ -8,11 +8,30 @@ from .serializers import RegisterSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import check_password
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 
 User = get_user_model()
 
 class RegisterView(APIView):
     permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        operation_description="Registrar um novo usuário.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["name", "last_name", "email", "password", "password2"],
+            properties={
+                "name": openapi.Schema(type=openapi.TYPE_STRING),
+                "last_name": openapi.Schema(type=openapi.TYPE_STRING),
+                "email": openapi.Schema(type=openapi.TYPE_STRING, format="email"),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
+                "password2": openapi.Schema(type=openapi.TYPE_STRING),
+            }
+        ),
+        responses={201: "Usuário registrado com sucesso", 400: "Erro de validação"}
+    )
 
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -26,6 +45,25 @@ class RegisterView(APIView):
 class LoginView(APIView):
     permission_classes = [AllowAny]
     authentication_classes = []
+
+    @swagger_auto_schema(
+        operation_description="Realiza login e retorna o token.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email", "password"],
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={"token": openapi.Schema(type=openapi.TYPE_STRING)}
+            ),
+            400: "Email não encontrado ou senha incorreta"
+        }
+    )
 
     def post(self, request):
         email = request.data.get("email")
@@ -50,6 +88,11 @@ class LogoutView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated] 
 
+    @swagger_auto_schema(
+        operation_description="Realiza logout do usuário autenticado.",
+        responses={200: "Logout realizado com sucesso"}
+    )
+
     def post(self, request):
         request.auth.delete()
         #logout(request)
@@ -63,6 +106,22 @@ class UserView(APIView):
     
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
+
+    @swagger_auto_schema(
+        operation_description="Retorna informações do usuário autenticado.",
+        responses={
+            200: openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    "id": openapi.Schema(type=openapi.TYPE_INTEGER),
+                    "name": openapi.Schema(type=openapi.TYPE_STRING),
+                    "last_name": openapi.Schema(type=openapi.TYPE_STRING),
+                    "email": openapi.Schema(type=openapi.TYPE_STRING),
+                    "bibliotecario": openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                }
+            )
+        },
+    )
 
     def get(self, request):
         user = request.user
@@ -86,6 +145,23 @@ class UserView(APIView):
 
 class AlterarSenhaView(APIView):
     permission_classes = [IsAuthenticated] 
+
+    @swagger_auto_schema(
+        operation_description="Altera a senha do usuário autenticado.",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["senha_atual", "nova_senha"],
+            properties={
+                "senha_atual": openapi.Schema(type=openapi.TYPE_STRING),
+                "nova_senha": openapi.Schema(type=openapi.TYPE_STRING),
+            }
+        ),
+        responses={
+            201: "Senha alterada com sucesso",
+            400: "Faltam dados",
+            401: "Senha atual incorreta"
+        }
+    )
 
     def post(self, request):
         
