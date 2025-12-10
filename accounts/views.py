@@ -11,7 +11,6 @@ from django.contrib.auth.hashers import check_password
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
-
 User = get_user_model()
 
 class RegisterView(APIView):
